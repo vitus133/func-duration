@@ -45,7 +45,7 @@ def plot(durations, func):
     pdf = count / sum(count)
     cdf = np.cumsum(pdf)
     ax3 = ax2.twinx()
-    ax3.plot(np.arange(0, max(ys), max(ys)/100), cdf, label='CDF')
+    ax3.plot(np.arange(0, max(ys), max(ys)/100)[0:100], cdf, label='CDF')
     plt.show()
 
 if __name__ == "__main__":
