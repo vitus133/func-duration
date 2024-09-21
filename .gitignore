@@ -1,4 +1,6 @@
 *.json
-trace_pipe*
+
+trace*
+*log*
 venv/
 case/

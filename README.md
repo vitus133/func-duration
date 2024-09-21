@@ -14,6 +14,7 @@ echo 'function_graph' > current_tracer
 echo pc_clock_adjtime >set_graph_function
 echo *adjtime*  *ptp* > set_ftrace_filter 
 echo funcgraph-abstime > trace_options
+echo uptime > trace_clock
 ```
 
 ## Trace example ##

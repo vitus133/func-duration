@@ -2,6 +2,7 @@ import sys
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 def parse_file (fn, func):
@@ -25,7 +26,14 @@ def parse_file (fn, func):
     return durations
 
 
-def plot(durations, func):
+def plot(durations, func, problems):
+    if len(problems) > 0:
+        xs = list([float(list(sample.keys())[0]) for sample in durations])
+        for problem in problems:
+            diff = int(problem - xs[0])
+            delta = diff * 3
+            print(problem, xs[delta], xs[delta+1])
+
     _, ax = plt.subplots()
     ys = list([list(sample.items())[0][-1]/1000 for sample in durations])
     max_y = max(ys)
@@ -69,6 +77,20 @@ def plot(durations, func):
     ax3.plot(np.arange(0, max(ys), max(ys)/100)[0:100], cdf, label='CDF')
     plt.show()
 
+def find_log_problems():
+    issues = []
+    files = os.listdir(".")
+    for file in files:
+        if "log" in file:
+            with open(file, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "diff -1000000000" in line or "diff -999999999" in line:
+                        fields = line.split(" ")
+                        ts = fields[3].split("[")[-1].split("]")[0]
+                        issues.append(float(ts))
+    return issues
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python parse.py <trace file name> <function name>, for example:")
@@ -78,6 +100,7 @@ if __name__ == "__main__":
     func_name = sys.argv[2]
     durations = parse_file(file_name, func_name)
     # Uncomment to dump data to json
-    # with open(f"{file_name}_{func_name}.json", "w") as fw:
-    #     json.dump(durations, fw)
-    plot(durations, func_name)
+    with open(f"{file_name}_{func_name}.json", "w") as fw:
+        json.dump(durations, fw)
+    log_problems = find_log_problems()
+    plot(durations, func_name, log_problems)
