@@ -1,3 +1,4 @@
 *.json
 trace_pipe*
 venv/
+case/
