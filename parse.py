@@ -27,12 +27,18 @@ def parse_file (fn, func):
 
 
 def plot(durations, func, problems):
+# Find log problems in the trace
+    pxs = []
+    pys = []
     if len(problems) > 0:
         xs = list([float(list(sample.keys())[0]) for sample in durations])
         for problem in problems:
             diff = int(problem - xs[0])
             delta = diff * 3
-            print(problem, xs[delta], xs[delta+1])
+            pxs.extend([delta, delta+1, delta+2])
+        for i in pxs:
+            pys.append(list(durations[i].items())[0][-1]/1000)
+    print(pxs,pys)
 
     _, ax = plt.subplots()
     ys = list([list(sample.items())[0][-1]/1000 for sample in durations])
@@ -40,31 +46,38 @@ def plot(durations, func, problems):
     ax.set_xlabel("Sample")
     ax.set_ylabel("Call duration, ms")
     ax.set_title(f"{func} execution time and average")
-    ax.plot(np.array(ys))
+    data, = ax.plot(np.array(ys), label='Data')
     ax.set_ybound((0, max_y*1.2))
     idx_max_y = ys.index(max_y)
+    print(idx_max_y, max_y)
+    
+    prob = ax.twinx()
+    probs, = prob.plot(pxs, pys, color="orange", linewidth=3, markersize=10, label='Problem(s)')
+    prob.set_ybound(0, max_y*1.2)
 
-    peak = ax.twinx()
-    peak.plot([idx_max_y], [max_y], "brown", marker=".", markersize=20)
-    peak.set_ybound(0, max_y*1.2)
-    peak_position_pt = idx_max_y / len(ys)
-    if peak_position_pt > 0.7:
-        ha = "right"
-    elif peak_position_pt < 0.3:
-        ha = "left"
-    else:
-        ha = "center"
-    timestamp = list(durations[idx_max_y].keys())[0]
-    value = durations[idx_max_y].get(timestamp)
-    peak.annotate(f'peak {value/1000}ms\ntimestamp {timestamp}', 
-                  xy=(idx_max_y, max_y), xytext=(idx_max_y, max_y*1.1),
-                  horizontalalignment=ha, verticalalignment='center',
-                  color='brown')
+    # peak = ax.twinx()
+    # pk, = peak.plot([idx_max_y], [max_y], "brown", marker="o", markersize=10, label='Peak')
+    # peak.set_ybound(0, max_y*1.2)
+    # peak_position_pt = idx_max_y / len(ys)
+    # if peak_position_pt > 0.7:
+    #     ha = "right"
+    # elif peak_position_pt < 0.3:
+    #     ha = "left"
+    # else:
+    #     ha = "center"
+    # timestamp = list(durations[idx_max_y].keys())[0]
+    # value = durations[idx_max_y].get(timestamp)
+    # peak.annotate(f'peak {value/1000}ms\ntimestamp {timestamp}', 
+    #               xy=(idx_max_y, max_y), xytext=(idx_max_y, max_y*1.1),
+    #               horizontalalignment=ha, verticalalignment='center',
+    #               color='brown')
 
     avg = ax.twinx()
     avg_data = [sum(ys)/len(ys)] * len(ys)
-    avg.plot(avg_data, 'r', label='AVG')
+    av, = avg.plot(avg_data, 'r', label='Average')
     avg.set_ybound(0, max_y*1.2)
+
+    ax.legend(handles=[data, probs, av])
 
     _, ax2 = plt.subplots()
     ax2.hist(ys, bins=100, color="Gray")
