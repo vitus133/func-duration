@@ -31,14 +31,21 @@ def plot(durations, func, problems):
     pxs = []
     pys = []
     if len(problems) > 0:
+        pxs_temp = []
         xs = list([float(list(sample.keys())[0]) for sample in durations])
         for problem in problems:
             diff = int(problem - xs[0])
             delta = diff * 3
-            pxs.extend([delta, delta+1, delta+2])
-        for i in pxs:
-            pys.append(list(durations[i].items())[0][-1]/1000)
-    print(pxs,pys)
+            pxs_temp.extend([delta, delta+1, delta+2])
+        for i in pxs_temp:
+            if i < 0:
+                continue
+            try:
+                pys.append(list(durations[i].items())[0][-1]/1000)
+                pxs.append(i)
+            except Exception as e:
+                print(i)
+                print(len(durations))
 
     _, ax = plt.subplots()
     ys = list([list(sample.items())[0][-1]/1000 for sample in durations])
@@ -51,26 +58,10 @@ def plot(durations, func, problems):
     idx_max_y = ys.index(max_y)
     print(idx_max_y, max_y)
     
-    prob = ax.twinx()
-    probs, = prob.plot(pxs, pys, color="orange", linewidth=3, markersize=10, label='Problem(s)')
-    prob.set_ybound(0, max_y*1.2)
-
-    # peak = ax.twinx()
-    # pk, = peak.plot([idx_max_y], [max_y], "brown", marker="o", markersize=10, label='Peak')
-    # peak.set_ybound(0, max_y*1.2)
-    # peak_position_pt = idx_max_y / len(ys)
-    # if peak_position_pt > 0.7:
-    #     ha = "right"
-    # elif peak_position_pt < 0.3:
-    #     ha = "left"
-    # else:
-    #     ha = "center"
-    # timestamp = list(durations[idx_max_y].keys())[0]
-    # value = durations[idx_max_y].get(timestamp)
-    # peak.annotate(f'peak {value/1000}ms\ntimestamp {timestamp}', 
-    #               xy=(idx_max_y, max_y), xytext=(idx_max_y, max_y*1.1),
-    #               horizontalalignment=ha, verticalalignment='center',
-    #               color='brown')
+    if len(pxs)> 0:
+        prob = ax.twinx()
+        probs, = prob.plot(pxs, pys, color="orange", linewidth=3, marker="o",markersize=10, label='Problem(s)')
+        prob.set_ybound(0, max_y*1.2)
 
     avg = ax.twinx()
     avg_data = [sum(ys)/len(ys)] * len(ys)
