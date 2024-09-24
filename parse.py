@@ -46,30 +46,32 @@ def plot(durations, func, problems):
             except Exception as e:
                 print(i)
                 print(len(durations))
-
-    _, ax = plt.subplots()
+    # Figure 1
     ys = list([list(sample.items())[0][-1]/1000 for sample in durations])
     max_y = max(ys)
+    _, ax = plt.subplots()
+    ylim_low = 0.3
+    ylim_high = max_y * 5
     ax.set_xlabel("Sample")
     ax.set_ylabel("Call duration, ms")
     ax.set_title(f"{func} execution time and average")
     data, = ax.plot(np.array(ys), label='Data')
-    ax.set_ybound((0, max_y*1.2))
-    idx_max_y = ys.index(max_y)
-    print(idx_max_y, max_y)
-    
-    if len(pxs)> 0:
-        prob = ax.twinx()
-        probs, = prob.plot(pxs, pys, color="orange", linewidth=3, marker="o",markersize=10, label='Problem(s)')
-        prob.set_ybound(0, max_y*1.2)
+    ax.set(ylim=(ylim_low, ylim_high), yscale='log')
 
     avg = ax.twinx()
+    avg.set(ylim=(ylim_low, ylim_high), yscale='log')
     avg_data = [sum(ys)/len(ys)] * len(ys)
     av, = avg.plot(avg_data, 'r', label='Average')
-    avg.set_ybound(0, max_y*1.2)
 
-    ax.legend(handles=[data, probs, av])
+    if len(pxs)> 0:
+        prob = ax.twinx()
+        prob.set(ylim=(ylim_low, ylim_high), yscale='log')
+        probs, = prob.plot(pxs, pys, color="orange", linewidth=3, marker="o",markersize=10, label='Problem(s)')
+        ax.legend(handles=[data, probs, av])
+    else:
+        ax.legend(handles=[data, av])    
 
+    # Figure 2
     _, ax2 = plt.subplots()
     ax2.hist(ys, bins=100, color="Gray")
     ax2.set_yscale('log')
