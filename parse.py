@@ -30,22 +30,22 @@ def plot(durations, func, problems):
 # Find log problems in the trace
     pxs = []
     pys = []
-    if len(problems) > 0:
-        pxs_temp = []
-        xs = list([float(list(sample.keys())[0]) for sample in durations])
-        for problem in problems:
-            diff = int(problem - xs[0])
-            delta = diff * 3
-            pxs_temp.extend([delta, delta+1, delta+2])
-        for i in pxs_temp:
-            if i < 0:
-                continue
-            try:
-                pys.append(list(durations[i].items())[0][-1]/1000)
-                pxs.append(i)
-            except Exception as e:
-                print(i)
-                print(len(durations))
+    # if len(problems) > 0:
+    #     pxs_temp = []
+    #     xs = list([float(list(sample.keys())[0]) for sample in durations])
+    #     for problem in problems:
+    #         diff = int(problem - xs[0])
+    #         delta = diff * 3
+    #         pxs_temp.extend([delta, delta+1, delta+2])
+    #     for i in pxs_temp:
+    #         if i < 0:
+    #             continue
+    #         try:
+    #             pys.append(list(durations[i].items())[0][-1]/1000)
+    #             pxs.append(i)
+    #         except Exception as e:
+    #             print(i)
+    #             print(len(durations))
     # Figure 1
     ys = list([list(sample.items())[0][-1]/1000 for sample in durations])
     max_y = max(ys)
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     func_name = sys.argv[2]
     durations = parse_file(file_name, func_name)
     # Uncomment to dump data to json
-    with open(f"{file_name}_{func_name}.json", "w") as fw:
-        json.dump(durations, fw)
+    # with open(f"{file_name}_{func_name}.json", "w") as fw:
+    #     json.dump(durations, fw)
     log_problems = find_log_problems()
     plot(durations, func_name, log_problems)
